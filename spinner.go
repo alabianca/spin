@@ -1,4 +1,4 @@
-package spinners
+package spin
 
 import (
 	"io"
