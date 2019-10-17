@@ -9,6 +9,7 @@ type SpinType string
 
 const Dots = SpinType("dots")
 const Lines = SpinType("lines")
+const Dots2 = SpinType("dots2")
 
 var disableCursor = []byte("\033[?25l")
 var enableCursor = []byte("\033[?25h")
@@ -26,15 +27,7 @@ type spinner struct {
 }
 
 func NewSpinner(st SpinType, writer io.Writer) Spinner {
-	var frames []string
-
-	if st == Dots {
-		frames = dotFrames
-	}
-
-	if st == Lines {
-		frames = lineFrames
-	}
+	frames := getFrames(st)
 
 	return &spinner{
 		spinType: st,
