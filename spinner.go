@@ -72,7 +72,6 @@ func (s *spinner) Start() {
 
 func (s *spinner) Stop() {
 	s.writer.Write(clearAllLine)
-	s.writer.Write([]byte("\n"))
 	s.writer.Write(enableCursor)
 	s.stop <- true
 }
