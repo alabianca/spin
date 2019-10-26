@@ -2,6 +2,9 @@ package spin
 
 import (
 	"io"
+	"os"
+	"os/signal"
+	"syscall"
 	"time"
 )
 
@@ -10,13 +13,16 @@ type SpinType string
 const Dots = SpinType("dots")
 const Lines = SpinType("lines")
 const Dots2 = SpinType("dots2")
+const csi = "\033[?"
 
-var disableCursor = []byte("\033[?25l")
-var enableCursor = []byte("\033[?25h")
+var disableCursor = []byte(csi + "25l")
+var enableCursor = []byte(csi + "25h")
+var clearAllLine = []byte(csi + "2K")
 
 type Spinner interface {
 	Start()
 	Stop()
+	Close()
 }
 
 type spinner struct {
@@ -41,6 +47,8 @@ func (s *spinner) Start() {
 	index := 0
 	// disable cursor while spinning
 	s.writer.Write(disableCursor)
+	sig := make(chan os.Signal, 1)
+	signal.Notify(sig, os.Interrupt, syscall.SIGINT, syscall.SIGTERM)
 
 	for {
 		if index >= len(s.frames) {
@@ -53,14 +61,22 @@ func (s *spinner) Start() {
 		case <-time.After(time.Millisecond * 100):
 			s.writer.Write([]byte(frame))
 			index++
-		case <-s.stop:
+		case <-sig:
 			s.writer.Write(enableCursor)
+			s.writer.Write([]byte("\n"))
+		case <-s.stop:
 			return
 		}
 	}
 }
 
 func (s *spinner) Stop() {
+	s.writer.Write(clearAllLine)
 	s.writer.Write([]byte("\n"))
+	s.writer.Write(enableCursor)
 	s.stop <- true
+}
+
+func (s *spinner) Close() {
+	s.writer.Write(enableCursor)
 }
