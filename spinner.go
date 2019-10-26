@@ -61,5 +61,6 @@ func (s *spinner) Start() {
 }
 
 func (s *spinner) Stop() {
+	s.writer.Write([]byte("\n"))
 	s.stop <- true
 }
