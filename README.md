@@ -7,3 +7,8 @@ To initialize a spinner first create the instance using `spinners.NewSpinner(spi
 
 Call `Start()` on the spinner inside a separate go routine.
 The spinner will spin until `Stop()` is called.
+
+### Spin Types
+* Dots
+* Dots2
+* Lines
